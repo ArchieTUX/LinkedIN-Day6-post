@@ -75,13 +75,7 @@ Then just:
 * Vanilla JavaScript
 * Pure front-end = No dependencies
 
----
 
-## 🖼️ Screenshots
-
-> Add GIF or image here showing interaction
-
----
 
 ## 🧠 Who’s it for?
 
