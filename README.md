@@ -104,10 +104,5 @@ MIT — Fork it. Remix it. Ship your own version.
 
 Made with ☕, ✨, and too much free time by [**Adithya Srivatsa**](https://linkedin.com/in/...)
 
-```
 
----
-
-Let me know if you want a **PDF export**, [deploy to GitHub Pages instructions](f), or a [carousel version for LinkedIn posts](f).
-```
 
