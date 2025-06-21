@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Learning Adventure Map</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: auto;
+        }
+
+        .header {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .thanks-section {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            padding: 2rem;
+            margin: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .mindmap-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            gap: 3rem;
+        }
+
+        .level {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            width: 100%;
+            max-width: 1400px;
+        }
+
+        .node {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 1.5rem;
+            min-width: 300px;
+            max-width: 350px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .node:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            background: rgba(255,255,255,0.2);
+        }
+
+        .node::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s;
+            opacity: 0;
+        }
+
+        .node:hover::before {
+            animation: shine 0.5s ease-in-out;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); opacity: 0; }
+        }
+
+        .node-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .node h3 {
+            color: #ffd700;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .node ul {
+            list-style: none;
+            text-align: left;
+        }
+
+        .node li {
+            margin: 0.5rem 0;
+            padding-left: 1rem;
+            position: relative;
+        }
+
+        .node li::before {
+            content: '⚡';
+            position: absolute;
+            left: 0;
+            color: #ffd700;
+        }
+
+        .progress-bar {
+            background: rgba(0,0,0,0.3);
+            height: 8px;
+            border-radius: 4px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1);
+            border-radius: 4px;
+            transition: width 2s ease;
+        }
+
+        .level-connector {
+            width: 4px;
+            height: 50px;
+            background: linear-gradient(to bottom, #ffd700, #ff6b6b);
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .level-connector::before {
+            content: '⬇️';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+        }
+
+        .meme-corner {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            padding: 1rem;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .meme-corner:hover {
+            transform: scale(1.1);
+            background: rgba(255,0,150,0.8);
+        }
+
+        .easter-egg {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.8);
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .easter-egg:hover {
+            background: rgba(0,255,0,0.8);
+            transform: rotate(360deg);
+        }
+
+        .network-chuck-special {
+            background: linear-gradient(45deg, #ff6b6b, #ffd700) !important;
+            border: 3px solid #fff !important;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 107, 107, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0); }
+        }
+
+        .achievement {
+            display: inline-block;
+            background: #ffd700;
+            color: #333;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin: 0.2rem;
+        }
+
+        @media (max-width: 768px) {
+            .node {
+                min-width: 280px;
+                max-width: 320px;
+            }
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="easter-egg" onclick="showEasterEgg()">🔥 Click me!</div>
+    
+    <div class="header">
+        <h1>🚀 The Self-Taught AI Adventure Map</h1>
+        <p style="font-size: 1.2rem; opacity: 0.9;">Level up your AI skills - NetworkChuck style! ☕</p>
+        <p style="font-size: 1rem; opacity: 0.8; margin-top: 1rem;">Created by <strong style="color: #ffd700;">Adithya Srivatsa</strong> 🌟</p>
+    </div>
+
+    <div class="thanks-section">
+        <h2>🙏 Shoutout to the Legends Who Started This Journey!</h2>
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem; margin-top: 1rem;">
+            <div style="text-align: center;">
+                <div style="font-size: 3rem;">☕</div>
+                <strong>NetworkChuck</strong><br>
+                <small>The coffee-powered legend who made learning fun!</small>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: 3rem;">🎓</div>
+                <strong>David J. Malan (CS50)</strong><br>
+                <small>Making computer science magical since forever!</small>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: 3rem;">🔥</div>
+                <strong>Fireship</strong><br>
+                <small>Memes + Code = Perfect combo!</small>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: 3rem;">📦</div>
+                <strong>BigBoxSWE</strong><br>
+                <small>Keeping us entertained while we learn!</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="mindmap-container">
+        <!-- Level 1: Foundation -->
+        <div class="level">
+            <div class="node network-chuck-special" onclick="toggleProgress(this)">
+                <span class="node-icon">☕</span>
+                <h3>Level 1: Foundation (NetworkChuck Approved!)</h3>
+                <ul>
+                    <li>CS50 by Harvard (David J. Malan is a wizard!)</li>
+                    <li>Python fundamentals (freeCodeCamp)</li>
+                    <li>Linux basics (NetworkChuck style)</li>
+                    <li>Git & GitHub (Version control is life!)</li>
+                </ul>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%"></div>
+                </div>
+                <div class="achievement">🏆 Coffee Powered Beginner</div>
+            </div>
+        </div>
+
+        <div class="level-connector"></div>
+
+        <!-- Level 2: Math & Stats -->
+        <div class="level">
+            <div class="node" onclick="toggleProgress(this)">
+                <span class="node-icon">🧮</span>
+                <h3>Level 2: Math That Actually Matters</h3>
+                <ul>
+                    <li>3Blue1Brown Linear Algebra (Visual magic!)</li>
+                    <li>Khan Academy Statistics</li>
+                    <li>StatQuest (Josh Starmer is amazing)</li>
+                    <li>Math for fun, not fear!</li>
+                </ul>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%"></div>
+                </div>
+                <div class="achievement">🧠 Math Ninja</div>
+            </div>
+        </div>
+
+        <div class="level-connector"></div>
+
+        <!-- Level 3: Core ML -->
+        <div class="level">
+            <div class="node" onclick="toggleProgress(this)">
+                <span class="node-icon">🤖</span>
+                <h3>Level 3: Machine Learning Mastery</h3>
+                <ul>
+                    <li>Andrew Ng's Course (The GOAT!)</li>
+                    <li>Fast.ai (Practical > Theoretical)</li>
+                    <li>Kaggle Learn (Free micro-courses)</li>
+                    <li>Build your first ML project!</li>
+                </ul>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%"></div>
+                </div>
+                <div class="achievement">🚀 ML Apprentice</div>
+            </div>
+
+            <div class="node" onclick="toggleProgress(this)">
+                <span class="node-icon">🧠</span>
+                <h3>Level 3.5: Deep Learning Deep Dive</h3>
+                <ul>
+                    <li>DeepLearning.AI Specialization</li>
+                    <li>PyTorch tutorials</li>
+                    <li>Hugging Face course (Transformers!)</li>
+                    <li>Papers With Code (Stay updated)</li>
+                </ul>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%"></div>
+                </div>
+                <div class="achievement">🔥 Neural Network Wizard</div>
+            </div>
+        </div>
+
+        <div class="level-connector"></div>
+
+        <!-- Level 4: Choose Your Adventure -->
+        <div class="level">
+            <div class="node" onclick="toggleProgress(this)">
+                <span class="node-icon">👁️</span>
+                <h3>Path A: Computer Vision</h3>
+                <ul>
+                    <li>OpenCV Python (freeCodeCamp)</li>
+                    <li>YOLO object detection</li>
+                    <li>PyImageSearch blog</li>
+                    <li>Build an AI that sees!</li>
+                </ul>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%"></div>
+                </div>
+                <div class="achievement">👀 Vision Master</div>
+            </div>
+
+            <div class="node" onclick="toggleProgress(this)">
+                <span class="node-icon">💬</span>
+                <h3>Path B: NLP & Language Models</h3>
+                <ul>
+                    <li>Hugging Face NLP course</li>
+                    <li>LangChain for LLM apps</li>
+                    <li>Fine-tune your own model</li>
+                    <li>Build the next ChatGPT!</li>
+                </ul>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%"></div>
+                </div>
+                <div class="achievement">🗣️ Language Lord</div>
+            </div>
+
+            <div class="node" onclick="toggleProgress(this)">
+                <span class="node-icon">🎮</span>
+                <h3>Path C: Reinforcement Learning</h3>
+                <ul>
+                    <li>OpenAI Gym</li>
+                    <li>Stable Baselines3</li>
+                    <li>David Silver's RL course</li>
+                    <li>Train AI to play games!</li>
+                </ul>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%"></div>
+                </div>
+                <div class="achievement">🎯 RL Champion</div>
+            </div>
+        </div>
+
+        <div class="level-connector"></div>
+
+        <!-- Level 5: MLOps & Production -->
+        <div class="level">
+            <div class="node network-chuck-special" onclick="toggleProgress(this)">
+                <span class="node-icon">🐳</span>
+                <h3>Level 5: MLOps (NetworkChuck Territory!)</h3>
+                <ul>
+                    <li>Docker containers (NetworkChuck's favorite!)</li>
+                    <li>Kubernetes basics</li>
+                    <li>FastAPI for ML APIs</li>
+                    <li>Deploy like a pro!</li>
+                </ul>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%"></div>
+                </div>
+                <div class="achievement">☁️ Cloud Commander</div>
+            </div>
+
+            <div class="node" onclick="toggleProgress(this)">
+                <span class="node-icon">🚀</span>
+                <h3>Level 5.5: Production Ready</h3>
+                <ul>
+                    <li>AWS/GCP/Azure (Free tiers!)</li>
+                    <li>Model monitoring</li>
+                    <li>CI/CD pipelines</li>
+                    <li>Scale to millions!</li>
+                </ul>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%"></div>
+                </div>
+                <div class="achievement">⚡ Production Hero</div>
+            </div>
+        </div>
+
+        <div class="level-connector"></div>
+
+        <!-- Final Boss Level -->
+        <div class="level">
+            <div class="node" onclick="toggleProgress(this)" style="background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffd93d); animation: pulse 3s infinite;">
+                <span class="node-icon">👑</span>
+                <h3>FINAL BOSS: AI Entrepreneur</h3>
+                <ul>
+                    <li>Build your own AI startup</li>
+                    <li>Contribute to open source</li>
+                    <li>Mentor other learners</li>
+                    <li>Change the world!</li>
+                </ul>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%"></div>
+                </div>
+                <div class="achievement">🌟 AI Legend</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Final Thank You Section -->
+    <div style="background: linear-gradient(45deg, #ff6b6b, #4ecdc4); padding: 3rem 2rem; margin: 2rem; border-radius: 20px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.3);">
+        <h2 style="font-size: 2rem; margin-bottom: 1rem;">🙏 A Special Thank You</h2>
+        <p style="font-size: 1.3rem; margin-bottom: 1rem; line-height: 1.6;">
+            <strong>Thank you, NetworkChuck, for bringing me into this incredible world of technology! ☕</strong>
+        </p>
+        <p style="font-size: 1.1rem; opacity: 0.9; margin-bottom: 2rem;">
+            Your energy, passion, and "just start building" mentality changed everything. From a curious 17-year-old to someone shipping AI projects - this journey started with your videos. You showed me that learning doesn't need permission, just coffee and curiosity! 🚀
+        </p>
+        <div style="border-top: 2px solid rgba(255,255,255,0.3); padding-top: 2rem;">
+            <p style="font-size: 1rem; opacity: 0.8;">
+                Roadmap crafted with ❤️ by <strong style="color: #fff; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">Adithya Srivatsa</strong>
+            </p>
+            <p style="font-size: 0.9rem; opacity: 0.7; margin-top: 0.5rem;">
+                Day 6 of 90 - Still building, still learning, still shipping! 🌟
+            </p>
+        </div>
+    </div>
+
+    <div class="meme-corner" onclick="showMeme()">
+        <div style="font-size: 2rem;">😂</div>
+        <div style="font-size: 0.8rem;">Meme Break!</div>
+    </div>
+
+    <script>
+        function toggleProgress(node) {
+            const progressFill = node.querySelector('.progress-fill');
+            const currentWidth = parseInt(progressFill.style.width) || 0;
+            
+            if (currentWidth === 0) {
+                progressFill.style.width = '100%';
+                node.style.transform = 'scale(1.05)';
+                
+                // Add some celebration
+                createFireworks(node);
+                
+                // Play achievement sound (if you want to add it later)
+                setTimeout(() => {
+                    node.style.transform = 'scale(1)';
+                }, 500);
+            } else {
+                progressFill.style.width = '0%';
+            }
+        }
+
+        function createFireworks(element) {
+            const rect = element.getBoundingClientRect();
+            for (let i = 0; i < 5; i++) {
+                const firework = document.createElement('div');
+                firework.innerHTML = '🎉';
+                firework.style.position = 'fixed';
+                firework.style.left = (rect.left + rect.width/2) + 'px';
+                firework.style.top = (rect.top + rect.height/2) + 'px';
+                firework.style.fontSize = '2rem';
+                firework.style.pointerEvents = 'none';
+                firework.style.zIndex = '9999';
+                firework.style.animation = `firework${i} 1s ease-out forwards`;
+                
+                document.body.appendChild(firework);
+                
+                setTimeout(() => firework.remove(), 1000);
+            }
+        }
+
+        // Add firework animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes firework0 { to { transform: translate(-50px, -50px) scale(0); opacity: 0; } }
+            @keyframes firework1 { to { transform: translate(50px, -50px) scale(0); opacity: 0; } }
+            @keyframes firework2 { to { transform: translate(-50px, 50px) scale(0); opacity: 0; } }
+            @keyframes firework3 { to { transform: translate(50px, 50px) scale(0); opacity: 0; } }
+            @keyframes firework4 { to { transform: translate(0px, -70px) scale(0); opacity: 0; } }
+        `;
+        document.head.appendChild(style);
+
+        function showMeme() {
+            const memes = [
+                "When your AI model finally works: 'It's not much, but it's honest work' 🤖",
+                "Me: I'll just quickly train this model\nAlso me: *still debugging 6 hours later* 😅",
+                "When someone asks how long it takes to learn AI: 'About 3 months... or 3 years' 📚",
+                "Docker containers are like Tupperware for code - NetworkChuck probably 🐳",
+                "When your model accuracy hits 99%: 'I am inevitable' - Thanos, probably 💪"
+            ];
+            
+            const randomMeme = memes[Math.floor(Math.random() * memes.length)];
+            alert(randomMeme);
+        }
+
+        function showEasterEgg() {
+            const secrets = [
+                "🔥 Fireship would be proud of this interactive roadmap!",
+                "☕ Remember: NetworkChuck says 'Coffee first, code second!'",
+                "🎓 David J. Malan: Making CS fun since 1999!",
+                "📦 BigBoxSWE: Where memes meet software engineering!",
+                "🚀 You're already ahead of 90% of people just by starting!"
+            ];
+            
+            const randomSecret = secrets[Math.floor(Math.random() * secrets.length)];
+            alert(randomSecret);
+        }
+
+        // Add some interactive sparkles
+        document.addEventListener('mousemove', function(e) {
+            if (Math.random() > 0.95) {
+                const sparkle = document.createElement('div');
+                sparkle.innerHTML = '✨';
+                sparkle.style.position = 'fixed';
+                sparkle.style.left = e.clientX + 'px';
+                sparkle.style.top = e.clientY + 'px';
+                sparkle.style.pointerEvents = 'none';
+                sparkle.style.fontSize = '1rem';
+                sparkle.style.animation = 'sparkle 1s ease-out forwards';
+                sparkle.style.zIndex = '9998';
+                
+                document.body.appendChild(sparkle);
+                setTimeout(() => sparkle.remove(), 1000);
+            }
+        });
+
+        // Add sparkle animation
+        const sparkleStyle = document.createElement('style');
+        sparkleStyle.textContent = `
+            @keyframes sparkle {
+                0% { opacity: 1; transform: scale(0); }
+                50% { opacity: 1; transform: scale(1); }
+                100% { opacity: 0; transform: scale(0); }
+            }
+        `;
+        document.head.appendChild(sparkleStyle);
+    </script>
+</body>
+</html>
